@@ -1,0 +1,19 @@
+{
+  "name": "jamie_hyland",
+  "version": "1.0.0",
+  "description": "A quiz game for up to 4 players using websockets ",
+  "main": "app.js",
+  "scripts": {
+    "test": "app"
+  },
+  "author": "Jamie Hyland",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.0",
+    "socket.io": "^1.7.3",
+    "ws": "^2.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}

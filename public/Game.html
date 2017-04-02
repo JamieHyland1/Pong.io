@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Quize Sockets!</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="./classes/ball.js"></script> 
+	<script src="classes/Paddle.js"></script>
+	<script src="js/Player.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/syle.css" type="text/css">
+	
+</head>
+   <script type="text/javascript">
+	
+	$(document).ready(function() {
+		var canvas = document.getElementById("myCanvas");
+		var context = canvas.getContext("2d");
+		var canvasWidth = canvas.width;
+		var canvasHeight = canvas.height;
+		//initialisation of variables, create object(s) 
+        var ball = new Ball(10,"#ffffff");
+		var paddle = new Paddle("#C40000");
+		var p2 = new Paddle("deepskyblue")
+		
+		
+        var vx = 2;
+        var vy = 0;
+        paddle.x = canvasWidth-20;
+		paddle.y = (canvasHeight/2 + (paddle.height));
+		p2.x = canvasWidth - 780;
+		p2.y = canvasHeight/2
+		ball.x = Math.random()*canvasWidth;
+		ball.y = Math.random()*canvasHeight;
+			
+		
+		function animate ()
+		{
+			context.clearRect(0, 0, canvasWidth, canvasHeight);
+  			window.requestAnimationFrame(animate, canvas);
+  			
+			ball.Hit(paddle);
+			ball.Hit(p2);
+          	ball.Update();
+            ball.draw(context);
+			paddle.draw(context);
+			p2.draw(context);
+			
+			canvas.addEventListener('mousemove', function(e) 
+			{
+			  paddle.y = e.clientY;
+			  p2.y = -e.clientY;
+			})
+		};
+		window.requestAnimationFrame(animate, canvas);
+    });
+		</script>
+<body>
+	<header>
+
+	</header>
+	<div class="container">
+			<h1 id="PlayerName"Test></h1>
+			<hr>
+	
+		<div class="row">
+			<div class="row">
+			<div id="game">
+				<canvas id="myCanvas" width="800" height="400"
+   style="border:1px solid #000000;"/>
+			</div>
+				
+			</div>
+		</div>
+	</div>
+	
+  
+	
+	</body>
+</html>

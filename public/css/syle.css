@@ -1,0 +1,42 @@
+body
+{
+	background-color: snow;
+	font-family: "Century Gothic"
+}
+.player1
+{
+	font-style: normal;
+	color: red;
+}
+.player2
+{
+	font-style: normal;
+	color: deepskyblue;
+}
+.player3
+{
+	font-style: normal;
+	color: orange;
+}
+.player4
+{
+	font-style: normal;
+	color: forestgreen;
+}
+#PlayerCreate
+{
+background-color: #A6BAFF;
+color: white;
+border-radius: 25px;
+height: 200px;
+margin-left: 350px;
+z-index: 2;
+}
+#game
+{
+	background-color: white;
+	width: 800px;
+	height: 400px;
+	margin-left: 175px;
+	border: 1px, solid, black;
+}

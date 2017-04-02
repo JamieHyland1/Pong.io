@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Quize Sockets!</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="./classes/Paddle.js"></script>
+	<script src="js/Player.js"></script>
+	<script src="classes/ball.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/syle.css" type="text/css">
+	
+</head>
+
+<body>
+	<header>
+
+	</header>
+	<div class="container">
+			<h1>Quiz Sockets!</h1>
+			<hr>
+	
+		
+				
+<!--
+		<div class="row">
+		<div id ="PlayerCreate" class="col-lg-4">
+			<h2>Create your player!</h2>
+			<hr>
+			<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1">Player Name</span>
+			<input type="text" id="username" class="form-control" placeholder="John Doe" aria-describedby="basic-addon1">
+			</div>
+			<input type="submit" id="createPlayer" onclick="createPlayer()" class="btn btn-info" value="Submit Button">
+		</div>
+		</div>
+-->
+	<div class="row">
+		<div id="game">
+			<canvas id="myCanvas" width="800" height="400"
+		   style="border:1px solid #000000;"/>
+		</div>
+	</div>
+	</div>
+	<script>
+		var socket = io.connect();
+		var canvas = document.getElementById("myCanvas");
+		var context = canvas.getContext("2d");
+		var canvasWidth = canvas.width;
+		var canvasHeight = canvas.height;
+		var paddles = [];
+		var p1 = true;
+		var colors = ["#FF3300","#0AEB8D"];
+		var vx = 5;
+		var vy = 5;
+		socket.on('connect', function()
+		{
+		 console.log(socket.id);
+		});
+		var ball = new Ball(15, "#000000");
+		var paddleRight = new Paddle(colors[0]);
+		var paddleLeft = new Paddle(colors[1])
+		paddleRight.x = 0 + paddleRight.width;
+		paddleRight.y = canvasHeight/2 + 25;
+		paddleLeft.x = canvasWidth - paddleLeft.width-10;
+		paddleLeft.y = canvasHeight/2
+		ball.x = canvasWidth/2;
+		ball.y = canvasHeight/2;
+		
+		function animate ()
+		{
+		 context.clearRect(0, 0, canvasWidth, canvasHeight);
+		 paddleRight.draw(context);
+		 paddleLeft.draw(context);
+		 ball.draw(context);
+		// checkCollision(ball)
+			
+		 
+//		
+	     //socket.emit("BallMove", {"x": ball.x, "y": ball.y})
+		 
+         
+		};
+		window.requestAnimationFrame(animate, canvas);
+		
+		socket.on("Ball", function(data)
+		 {
+		   ball.x = data.x;
+		   ball.y = data.y;
+		  window.requestAnimationFrame(animate, canvas);
+		 })      
+		
+		
+		
+		
+		
+		
+		
+		
+		document.addEventListener('keydown', (event) =>
+		{
+			const keyName = event.key;
+			console.log(keyName)
+			switch(keyName)
+			{
+				case "ArrowUp":
+				paddleRight.y -= 7;
+				socket.emit("PaddleMoveRight", paddleRight)
+				break;
+				case "ArrowDown":
+				paddleRight.y += 7;
+				socket.emit("PaddleMoveRight", paddleRight)
+				break;
+				case "w":
+				animate();
+				paddleLeft.y -= 7;
+				console.log(paddleLeft.y)
+				socket.emit("PaddleMoveLeft", paddleLeft)
+				break;
+				case "s":
+				paddleLeft.y += 7;
+				socket.emit("PaddleMoveLeft", paddleLeft)
+				break;
+		  }
+
+		})
+		
+		function checkCollision(ball)
+		{
+		if(ball.CheckPaddleLeft(paddle))
+		 {
+			 vx = - vx;
+			 ball.color = colors[0]
+		 }
+		 if(ball.CheckPaddleRight(p2))
+		 {
+			 vx = -vx;
+			 ball.color = colors[1]
+		 }	
+		 if (ball.x - ball.radius < 0)
+		 {
+            vx = -vx
+		    ball.color = colors[0]
+         }
+		 else if (ball.x + ball.radius > 800)
+		 {
+		  vx = -vx
+		  ball.color = colors[1]
+		 }
+		 if(ball.y < 0)
+		 {
+		  vy = -vy;
+		 }
+		 else if(ball.y > canvasHeight)
+		 {
+		  vy = -vy
+		 }
+		}
+		
+			
+			socket.on("PaddleMoveRight",function(data)
+			{
+				paddle.y = data
+			})
+
+		
+		    socket.on("clientList", function(clients)
+			{
+				players = clients;
+				console.log(players.length)
+			})
+		
+			socket.on("RightMove", function(data)
+			{
+				paddleRight = data;
+			})
+			
+			socket.on("LeftMove", function(data)
+			{
+				paddleLeft = data;
+			})
+		
+			
+//			function createPlayer()
+//			{
+//				var player = new Player(username.value)
+//				var paddle = new Paddle("#fffff")
+//				player.id = socket.id;
+//				var obj = {"player": player,"paddle": paddle};
+//				socket.emit("NewPlayer", obj)
+//				console.log(player.name)
+//				$("#PlayerCreate").remove();
+//			}
+//			
+			
+	</script>
+</body>
+
+</html>
