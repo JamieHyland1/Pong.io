@@ -23,14 +23,29 @@ body
 	font-style: normal;
 	color: forestgreen;
 }
+#player1
+{
+	background-color: #FF3300;
+    text-align: center;
+	color: white;
+	margin-left: 175px;
+}
+#player2
+{
+	background-color: #0AEB8D;
+	text-align: center;
+	color: white;
+/*	width: 250px;*/
+	margin-left: 22px;
+}
 #PlayerCreate
 {
 background-color: #A6BAFF;
 color: white;
 border-radius: 25px;
-height: 200px;
+height: 250px;
 margin-left: 350px;
-z-index: 2;
+z-index: 12;
 }
 #game
 {

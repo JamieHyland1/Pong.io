@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="utf-8">
-	<title>Quize Sockets!</title>
+	<title>Pong.io</title>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 	<script src="./classes/Paddle.js"></script>
 	<script src="js/Player.js"></script>
@@ -19,12 +19,11 @@
 
 	</header>
 	<div class="container">
-			<h1>Quiz Sockets!</h1>
+			<h1>Pong.io</h1>
 			<hr>
 	
 		
 				
-<!--
 		<div class="row">
 		<div id ="PlayerCreate" class="col-lg-4">
 			<h2>Create your player!</h2>
@@ -33,10 +32,33 @@
   			<span class="input-group-addon" id="basic-addon1">Player Name</span>
 			<input type="text" id="username" class="form-control" placeholder="John Doe" aria-describedby="basic-addon1">
 			</div>
+			<div class="checkbox">
+  			<label><input type="checkbox" id="p1" value="">Player 1</label>
+			</div>
+			<div class="checkbox">
+			<label><input type="checkbox" id="p2" value="">Player 2</label>
+			</div>
 			<input type="submit" id="createPlayer" onclick="createPlayer()" class="btn btn-info" value="Submit Button">
 		</div>
 		</div>
--->
+	 <div class ="row">
+		 
+		 
+    <div id="player1" class="col-md-3 col-sm-6">
+        <h3 id="player1Name">Player 1</h3>
+		<hr>
+		<p id="score1">0</p>
+    </div>
+		 
+	<div class="col-md-2 col-sm-6"></div>
+		 
+    <div id="player2" class ="col-md-3 col-sm-6">
+       <h3 id="player2Name">Player 2</h3>
+	   <hr>
+	   <p id="score2">0</p>	
+     </div>
+  </div>
+	
 	<div class="row">
 		<div id="game">
 			<canvas id="myCanvas" width="800" height="400"
@@ -51,54 +73,73 @@
 		var canvasWidth = canvas.width;
 		var canvasHeight = canvas.height;
 		var paddles = [];
-		var p1 = true;
 		var colors = ["#FF3300","#0AEB8D"];
 		var vx = 5;
 		var vy = 5;
+		var left  = new Paddle(colors[0]);
+		var right = new Paddle(colors[1]);
+		var ball = new Ball(15, "#000000");
+		
+		left.x  = 0 + left.width;
+		left.y  = canvasHeight/2 - (left.height/2);
+		right.x = canvasWidth - (right.width*2);
+		right.y = canvasHeight/2 - (right.height/2);
+		ball.x  = canvasWidth/2;
+		ball.y  = canvasHeight/2;
+		
 		socket.on('connect', function()
 		{
 		 console.log(socket.id);
 		});
-		var ball = new Ball(15, "#000000");
-		var paddleRight = new Paddle(colors[0]);
-		var paddleLeft = new Paddle(colors[1])
-		paddleRight.x = 0 + paddleRight.width;
-		paddleRight.y = canvasHeight/2 + 25;
-		paddleLeft.x = canvasWidth - paddleLeft.width-10;
-		paddleLeft.y = canvasHeight/2
-		ball.x = canvasWidth/2;
-		ball.y = canvasHeight/2;
 		
+		socket.on("diconnect",function()
+		{
+			
+			socket.emit("disconnect", socket.id)
+		})
+		//draw the canvas + paddles and ball
 		function animate ()
 		{
 		 context.clearRect(0, 0, canvasWidth, canvasHeight);
-		 paddleRight.draw(context);
-		 paddleLeft.draw(context);
 		 ball.draw(context);
-		// checkCollision(ball)
-			
-		 
-//		
-	     //socket.emit("BallMove", {"x": ball.x, "y": ball.y})
-		 
-         
+		 left.draw(context)
+		 right.draw(context);
 		};
-		window.requestAnimationFrame(animate, canvas);
 		
+		window.requestAnimationFrame(animate, canvas);
+		//set the ball's x,y with the server x,y values then call the animate() function to redraw the canvas
 		socket.on("Ball", function(data)
 		 {
 		   ball.x = data.x;
 		   ball.y = data.y;
 		  window.requestAnimationFrame(animate, canvas);
 		 })      
+		//update the left paddles position
+		socket.on("LeftMove", function(data)
+		{
+		  left.y = data.y	
+		})
+		//update the right paddles position
+		socket.on("RightMove", function(data)
+		{
+		  right.y = data.y;
+		})
+		//update player 2's score
+		socket.on("player2Score",function(score)
+		{
+			document.getElementById("score2").innerHTML = score;
+		})
+		//update player 3's score
+		socket.on("player1Score",function(score)
+		{
+			document.getElementById("score1").innerHTML = score;
+		})
+
 		
 		
 		
 		
-		
-		
-		
-		
+		//movement code for both paddles, also sends the new x,y value to the server
 		document.addEventListener('keydown', (event) =>
 		{
 			const keyName = event.key;
@@ -106,95 +147,91 @@
 			switch(keyName)
 			{
 				case "ArrowUp":
-				paddleRight.y -= 7;
-				socket.emit("PaddleMoveRight", paddleRight)
+				if(right.y > 0)
+				{
+				right.y -= 15;
+				socket.emit("PaddleMoveRight", right)
+				}
 				break;
 				case "ArrowDown":
-				paddleRight.y += 7;
-				socket.emit("PaddleMoveRight", paddleRight)
+				if((right.y + right.height) < canvasHeight)
+				{
+				right.y += 15;
+				socket.emit("PaddleMoveRight", right)
+				}
 				break;
 				case "w":
-				animate();
-				paddleLeft.y -= 7;
-				console.log(paddleLeft.y)
-				socket.emit("PaddleMoveLeft", paddleLeft)
+				if(left.y > 0)
+				{
+				left.y -= 15;
+				socket.emit("PaddleMoveLeft", left)
+				}
 				break;
 				case "s":
-				paddleLeft.y += 7;
-				socket.emit("PaddleMoveLeft", paddleLeft)
+				if((left.y+left.height) < canvasHeight)
+				{
+				left.y += 15;
+				socket.emit("PaddleMoveLeft", left)
+				}
 				break;
 		  }
 
 		})
 		
-		function checkCollision(ball)
-		{
-		if(ball.CheckPaddleLeft(paddle))
-		 {
-			 vx = - vx;
-			 ball.color = colors[0]
-		 }
-		 if(ball.CheckPaddleRight(p2))
-		 {
-			 vx = -vx;
-			 ball.color = colors[1]
-		 }	
-		 if (ball.x - ball.radius < 0)
-		 {
-            vx = -vx
-		    ball.color = colors[0]
-         }
-		 else if (ball.x + ball.radius > 800)
-		 {
-		  vx = -vx
-		  ball.color = colors[1]
-		 }
-		 if(ball.y < 0)
-		 {
-		  vy = -vy;
-		 }
-		 else if(ball.y > canvasHeight)
-		 {
-		  vy = -vy
-		 }
-		}
 		
-			
 			socket.on("PaddleMoveRight",function(data)
 			{
 				paddle.y = data
 			})
 
-		
 		    socket.on("clientList", function(clients)
 			{
 				players = clients;
 				console.log(players.length)
 			})
-		
-			socket.on("RightMove", function(data)
+			socket.on("p1Name", function(data)
 			{
-				paddleRight = data;
+			document.getElementById("player1Name").innerHTML = data;
 			})
 			
-			socket.on("LeftMove", function(data)
+			socket.on("p2Name", function(data)
 			{
-				paddleLeft = data;
+			document.getElementById("player2Name").innerHTML = data;
 			})
 		
-			
-//			function createPlayer()
+//			socket.on("RightMove", function(data)
 //			{
-//				var player = new Player(username.value)
-//				var paddle = new Paddle("#fffff")
-//				player.id = socket.id;
-//				var obj = {"player": player,"paddle": paddle};
-//				socket.emit("NewPlayer", obj)
-//				console.log(player.name)
-//				$("#PlayerCreate").remove();
-//			}
+//				paddleRight = data;
+//			})
 //			
-			
+//			socket.on("LeftMove", function(data)
+//			{
+//				paddleLeft = data;
+//			})
+		
+			//create a player object with the users info
+			function createPlayer()
+			{
+				players.push(new Player(username.value))
+				if($("#p1").is(':checked'))
+				{
+				document.getElementById("player1Name").innerHTML = username.value;
+				socket.emit("player", players[0])
+				socket.emit("player1Name", username.value);
+				$("#PlayerCreate").remove();
+				}
+				else if($("#p2").is(':checked'))
+				{
+				 document.getElementById("player2Name").innerHTML = username.value;
+				 socket.emit("player", players[1])
+				 socket.emit("player2Name", username.value)
+				 $("#PlayerCreate").remove();
+				}
+				else
+				{
+					alert("please select a player!")
+				}
+			}
 	</script>
 </body>
 
