@@ -1,10 +1,14 @@
 {
   "name": "jamie_hyland",
   "version": "1.0.0",
-  "description": "A quiz game for up to 4 players using websockets ",
+  "description": "A multplayer game of pong using socket.io",
   "main": "app.js",
   "scripts": {
     "test": "app"
+  },
+  "repository": {
+   "type": "git",
+   "url": "https://github.com/JamieHyland1/Pong.io.git"
   },
   "author": "Jamie Hyland",
   "license": "ISC",
